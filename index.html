@@ -24,11 +24,22 @@
     <button type="submit">Add</button>
   </form>
   <div id="rooms"></div>
-
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  <script>
     const roomsDiv = document.getElementById("rooms");
     const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom", "Balcony"];
-    const chores = JSON.parse(localStorage.getItem("chores")) || [];
+   
+    const { createClient } = supabase;
+    const db = createClient("https://bglkwkudbbouockxbhcq.supabase.co/rest/v1/", "sb_publishable_G-xjJM3MNpr4YTVsQrVwfA_sPOj_tV3");
+    
+    let chores = [];
+    
+    async function loadChores() {
+      const { data, error } = await db.from("chores").select("*").order("id");
+      if (error) { console.error(error); return; }
+      chores = data;
+      render();
+    }
     // fill the dropdown from the rooms array
     const select = document.getElementById("room");
     rooms.forEach(name => {
@@ -36,21 +47,18 @@
     option.textContent = name;
     select.appendChild(option);
     });
-    //save chores
-    function save() {
-        localStorage.setItem("chores", JSON.stringify(chores));
-    }
-    function addChore(event) {
-        if (event) event.preventDefault();
-
-        const input = document.getElementById("chore");
-        const room = document.getElementById("room");
-        if (input.value.trim() === "") return;
-
-        chores.push({ text: input.value, room: room.value, done: false});
-        input.value = "";
-        render();
-        save();
+   
+    async function addChore(event) {
+      if (event) event.preventDefault();
+      const input = document.getElementById("chore");
+      const room = document.getElementById("room");
+      if (input.value.trim() === "") return;
+    
+      const { error } = await db.from("chores").insert({ text: input.value, room: room.value });
+      if (error) { console.error(error); return; }
+    
+      input.value = "";
+      loadChores();
     }
 
     function toggleChore(index) {
@@ -107,7 +115,7 @@
             roomsDiv.appendChild(card);
             });
     }
-    render();
+    loadChores();
   </script>
 </body>
 </html>
