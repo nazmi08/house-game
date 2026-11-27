@@ -55,7 +55,7 @@
       if (input.value.trim() === "") return;
     
       const { error } = await db.from("chores").insert({ text: input.value, room: room.value });
-      if (error) { console.error(error); return; }
+      if (error) { alert(error.message); console.error(error); return; }
     
       input.value = "";
       loadChores();
