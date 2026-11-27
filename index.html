@@ -107,7 +107,7 @@
                 delBtn.className = "delete-btn"
                 delBtn.onclick = (event) => {
                     event.stopPropagation();
-                    deleteChore(index);
+                    deleteChore(chore.id);
                 }
                 li.appendChild(textSpan);
                 li.appendChild(delBtn);
