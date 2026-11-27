@@ -75,7 +75,7 @@
       const { error } = await db
         .from("chores")
         .delete()
-        .eq{"id",id);
+        .eq("id",id);
       if (error) { console.error(error); return;}
         loadChores();
     }
@@ -92,12 +92,12 @@
             card.innerHTML = "<h2>" + roomName + " (" + doneCount + "/" + roomChores.length +")</h2>";
 
             const ul = document.createElement("ul");
-            chores.forEach((chore, id) => {
+            chores.forEach((chore) => {
                 if (chore.room !== roomName) return;
               
                 const li = document.createElement("li");
                 if (chore.done) li.classList.add("done");
-                li.onclick = () => toggleChore(id);
+                li.onclick = () => toggleChore(chore.id);
               
                 const textSpan = document.createElement("span");
                 textSpan.textContent = chore.text;
