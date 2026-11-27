@@ -20,10 +20,7 @@
 
   <script>
     const list = document.getElementById("list");
-    //added event parameter to prevent page refresh
-    function addChore(event) {
-      if (event) event.preventDefault();
-      
+    function addChore(event) {      
       const input = document.getElementById("chore");
       if (input.value.trim() === "") return;
       const item = document.createElement("li");
