@@ -50,6 +50,7 @@
         chores.push({ text: input.value, room: room.value, done: false});
         input.value = "";
         render();
+        save();
     }
 
     function toggleChore(index) {
