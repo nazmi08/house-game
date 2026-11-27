@@ -31,22 +31,24 @@
    
     const { createClient } = supabase;
     const db = createClient("https://bglkwkudbbouockxbhcq.supabase.co/rest/v1/", "sb_publishable_G-xjJM3MNpr4YTVsQrVwfA_sPOj_tV3");
-    
+    const roomsDiv = document.getElementById("rooms");
+    const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom"];
     let chores = [];
-    
-    async function loadChores() {
-      const { data, error } = await db.from("chores").select("*").order("id");
-      if (error) { console.error(error); return; }
-      chores = data;
-      render();
-    }
-    // fill the dropdown from the rooms array
+
+    //fill the dropdown from the rooms array
     const select = document.getElementById("room");
     rooms.forEach(name => {
     const option = document.createElement("option");
     option.textContent = name;
     select.appendChild(option);
     });
+   
+    async function loadChores() {
+      const { data, error } = await db.from("chores").select("*").order("id");
+      if (error) { console.error(error); return; }
+      chores = data;
+      render();
+    }
    
     async function addChore(event) {
       if (event) event.preventDefault();
