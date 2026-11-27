@@ -14,22 +14,45 @@
   <h1>House Quest Trial_v1</h1>
   <form onsubmit="addChore(event)">
     <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
+    <select id="room">
+        <option>Living Room</option>
+        <option>Kitchen</option>
+        <option>Bathroom</option>
+    </select>
     <button type="submit">Add</button>
   </form>
   <ul id="list"></ul>
 
-  <script>
+ <script>
     const list = document.getElementById("list");
-    //added event parameter to prevent page refresh
-    function addChore(event) {      
-      if (event) event.preventDefault();
-      const input = document.getElementById("chore");
-      if (input.value.trim() === "") return;
-      const item = document.createElement("li");
-      item.textContent = input.value;
-      item.onclick = () => item.classList.toggle("done");
-      list.appendChild(item);
-      input.value = "";
+    const chores = [];
+
+    function addChore(event) {
+        if (event) event.preventDefault();
+
+        const input = document.getElementById("chore");
+        const room = document.getElementById("room");
+        if (input.value.trim() === "") return;
+
+        chores.push({ text: input.value, room: room.value, done: false});
+        input.value = "";
+        render();
+    }
+
+    function toggleChore(index) {
+        chores[index].done = !chores[index].done;
+        render();
+    }
+
+    function render() {
+        list.innerHTML= "";
+        chores.forEach((chore, index) => {
+            const item = document.createElement("li");
+            item.textContent = chore.room + ": " + chore.text;
+            if (chore.done) item.classList.add("done");
+            item.onclick = () => toggleChore(index);
+            list.appendChild(item);
+        });
     }
   </script>
 </body>
