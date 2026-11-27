@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title House Quest</title>
-    <style>
-        body { font-family:  sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
-        li { margin: 0.5rem 0; }
-        .done { text-decoration: line-through; color:gray; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>House Quest</title>
+  <style>
+    body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
+    li { margin: 0.5rem 0; }
+    .done { text-decoration: line-through; color: gray; }
+  </style>
 </head>
 <body>
-    <h1>House Quest</h1>
-    <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
-    <button onclick="addChore()">Add</button>
-    <ul id="list"></ul>
+  <h1>House Quest</h1>
+  <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
+  <button onclick="addChore()">Add</button>
+  <ul id="list"></ul>
 
-    <script>
-        const list = document.getElementById("list");
+  <script>
+    const list = document.getElementById("list");
 
-        function addChore() {
-            const input = document.getElementById("chore");
-            if (input.value.trim() === "") return;
-            const item = document.createElement("li");
-            item.textContent = input.value;
-            item.onclick = () => item.classList.toggle("done");
-            list.appendChild(item);
-            input.value = "";
-        }
-    </script>
+    function addChore() {
+      const input = document.getElementById("chore");
+      if (input.value.trim() === "") return;
+      const item = document.createElement("li");
+      item.textContent = input.value;
+      item.onclick = () => item.classList.toggle("done");
+      list.appendChild(item);
+      input.value = "";
+    }
+  </script>
 </body>
 </html>
