@@ -6,7 +6,7 @@
   <title>House Quest</title>
   <style>
     body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; background-color: lightblue;}
-    li { display: flex; justify-content: space-between; align-items: center; margin: .5 rem 0; cursor: pointer;}
+    li { display: flex; justify-content: space-between; align-items: center; margin: .5rem 0; cursor: pointer;}
     .done { text-decoration: line-through; color: gray; }
     .room { border: 1px solid #ccc; border-radius: 8px; padding: 0.5rem 1rem; margin: 1rem 0; }
     .room.complete { border: 2px solid #22c55e; background-color: #f0fdf4;}
@@ -28,11 +28,9 @@
  <script>
     const roomsDiv = document.getElementById("rooms");
     const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom", "Balcony"];
-   
+    
     const { createClient } = supabase;
-    const db = createClient("https://bglkwkudbbouockxbhcq.supabase.co/rest/v1/", "sb_publishable_G-xjJM3MNpr4YTVsQrVwfA_sPOj_tV3");
-    const roomsDiv = document.getElementById("rooms");
-    const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom"];
+    const db = createClient("https://bglkwkudbbouockxbhcq.supabase.co", "sb_publishable_G-xjJM3MNpr4YTVsQrVwfA_sPOj_tV3");
     let chores = [];
 
     //fill the dropdown from the rooms array
