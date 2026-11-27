@@ -124,6 +124,17 @@
             roomsDiv.appendChild(card);
             });
     }
+    // Subscribe to real-time changes in the "chores" table
+    db.channel('chores-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chores' },
+        (payload) => {
+          console.log('Change received!', payload);
+          loadChores(); // Automatically refresh the UI
+        }
+      )
+      .subscribe();
     loadChores();
   </script>
 </body>
