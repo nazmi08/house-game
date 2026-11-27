@@ -6,8 +6,13 @@
   <title>House Quest</title>
   <style>
     body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; background-color: lightblue;}
-    li { margin: 0.5rem 0; }
+    li { display: flex; justify-content: space-between; align-items: center; margin: .5 rem 0; cursor: pointer;}
     .done { text-decoration: line-through; color: gray; }
+    .room { border: 1px solid #ccc; border-radius: 8px; padding: 0.5rem 1rem; margin: 1rem 0; }
+    .room.complete { border: 2px solid #22c55e; background-color: #f0fdf4;}
+    .complete-msg { color: #166534; background-color: #dcfce7; padding: .4rem .75rem; border-radius: 6px; font-weight: bold; margin-top: .75rem; margin-bottom: 0;}
+    .delete-btn { background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; padding: 2px 6px; font-size: .75rem; cursor: pointer;}
+    .delete-btn:hover{ background: #fecaca;}
   </style>
 </head>
 <body>
@@ -15,17 +20,22 @@
   <form onsubmit="addChore(event)">
     <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
     <select id="room">
-        <option>Living Room</option>
-        <option>Kitchen</option>
-        <option>Bathroom</option>
     </select>
     <button type="submit">Add</button>
   </form>
-  <ul id="list"></ul>
+  <div id="rooms"></div>
 
  <script>
-    const list = document.getElementById("list");
+    const roomsDiv = document.getElementById("rooms");
+    const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom", "Balcony"];
     const chores = [];
+    // fill the dropdown from the rooms array
+    const select = document.getElementById("room");
+    rooms.forEach(name => {
+    const option = document.createElement("option");
+    option.textContent = name;
+    select.appendChild(option);
+    });
 
     function addChore(event) {
         if (event) event.preventDefault();
@@ -43,17 +53,57 @@
         chores[index].done = !chores[index].done;
         render();
     }
-
-    function render() {
-        list.innerHTML= "";
-        chores.forEach((chore, index) => {
-            const item = document.createElement("li");
-            item.textContent = chore.room + ": " + chore.text;
-            if (chore.done) item.classList.add("done");
-            item.onclick = () => toggleChore(index);
-            list.appendChild(item);
-        });
+   //function to remove a chore by its array index
+    function deleteChore(index){
+        chores.splice(index, 1);
+        render();
     }
+   
+    function render() {
+        roomsDiv.innerHTML= "";
+        rooms.forEach(roomName => {
+            const roomChores = chores.filter(c => c.room === roomName);
+            const doneCount = roomChores.filter(c => c.done).length;
+            const isComplete = roomChores.length > 0 && doneCount === roomChores.length;
+
+            const card = document.createElement("div");
+            card.className = "room" + (isComplete ? " complete" : "");
+            card.innerHTML = "<h2>" + roomName + " (" + doneCount + "/" + roomChores.length +")</h2>";
+
+            const ul = document.createElement("ul");
+            chores.forEach((chore, index) => {
+                if (chore.room !== roomName) return;
+              
+                const li = document.createElement("li");
+                if (chore.done) li.classList.add("done");
+                li.onclick = () => toggleChore(index);
+              
+                const textSpan = document.createElement("span");
+                textSpan.textContent = chore.text;
+              
+                const delBtn = document.createElement("button");
+                delBtn.textContent = "✕";
+                delBtn.className = "delete-btn"
+                delBtn.onclick = (event) => {
+                    event.stopPropagation();
+                    deleteChore(index);
+                }
+                li.appendChild(textSpan);
+                li.appendChild(delBtn);
+                ul.appendChild(li);
+            });
+            card.appendChild(ul);
+            //show message when all chores in this room are done
+            if (isComplete) {
+                const msg = document.createElement("p");
+                msg.className = "complete-msg";
+                msg.textContent = "All " + roomName + " chores done!";
+                card.appendChild(msg);
+            }
+            roomsDiv.appendChild(card);
+            });
+    }
+    render();
   </script>
 </body>
 </html>
