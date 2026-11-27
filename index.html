@@ -55,20 +55,29 @@
       if (input.value.trim() === "") return;
     
       const { error } = await db.from("chores").insert({ text: input.value, room: room.value });
-      if (error) { alert(error.message); console.error(error); return; }
+      if (error) { console.error(error); return; }
     
       input.value = "";
       loadChores();
     }
 
-    function toggleChore(index) {
-        chores[index].done = !chores[index].done;
-        render();
+    async function toggleChore(id) {
+      const chore = chores.find(c => c.id === id);   // look up the chore in the local array
+      const { error } = await db
+        .from("chores")
+        .update({ done: !chore.done })                        // the opposite of the current value
+        .eq("id", id);
+      if (error) { console.error(error); return; }
+      loadChores();
     }
    //function to remove a chore by its array index
-    function deleteChore(index){
-        chores.splice(index, 1);
-        render();
+    async function deleteChore(id){
+      const { error } = await db
+        .from("chores")
+        .delete()
+        .eq{"id",id);
+      if (error) { console.error(error); return;}
+        loadChores();
     }
    
     function render() {
@@ -83,12 +92,12 @@
             card.innerHTML = "<h2>" + roomName + " (" + doneCount + "/" + roomChores.length +")</h2>";
 
             const ul = document.createElement("ul");
-            chores.forEach((chore, index) => {
+            chores.forEach((chore, id) => {
                 if (chore.room !== roomName) return;
               
                 const li = document.createElement("li");
                 if (chore.done) li.classList.add("done");
-                li.onclick = () => toggleChore(index);
+                li.onclick = () => toggleChore(id);
               
                 const textSpan = document.createElement("span");
                 textSpan.textContent = chore.text;
