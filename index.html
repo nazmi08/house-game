@@ -5,21 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>House Quest</title>
   <style>
-    body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
+    body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; background-color: lightblue;}
     li { margin: 0.5rem 0; }
     .done { text-decoration: line-through; color: gray; }
   </style>
 </head>
 <body>
-  <h1>House Quest</h1>
-  <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
-  <button onclick="addChore()">Add</button>
+  <h1>House Quest Trial_v1</h1>
+  <form> onsubmit="addChore(event)">
+    <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
+    <button type="submit">Add</button>
+  </form>
   <ul id="list"></ul>
 
   <script>
     const list = document.getElementById("list");
-
-    function addChore() {
+    //added event parameter to prevent page refresh
+    function addChore(event) {
+      if (event) event.preventDefault();
+      
       const input = document.getElementById("chore");
       if (input.value.trim() === "") return;
       const item = document.createElement("li");
