@@ -28,7 +28,7 @@
  <script>
     const roomsDiv = document.getElementById("rooms");
     const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom", "Balcony"];
-    const chores = [];
+    const chores = JSON.parse(localStorage.getItem("chores")) || [];
     // fill the dropdown from the rooms array
     const select = document.getElementById("room");
     rooms.forEach(name => {
@@ -36,7 +36,10 @@
     option.textContent = name;
     select.appendChild(option);
     });
-
+    //save chores
+    function save() {
+        localStorage.setItem("chores", JSON.stringify(chores));
+    }
     function addChore(event) {
         if (event) event.preventDefault();
 
