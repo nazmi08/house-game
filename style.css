@@ -135,5 +135,58 @@ input, select {
 /* ---------- admin + placeholders ---------- */
 .admin-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
 .admin-row input { flex: 1; min-width: 120px; }
+
+/* ---------- assignee tooltip ---------- */
+.assignee-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  cursor: help;
+}
+
+.assignee-tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  text-align: center;
+  padding: .25rem .5rem;
+  border-radius: 6px;
+  font-size: .75rem;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.assignee-wrap:hover .assignee-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ---------- footer ---------- */
+.site-footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: .85rem;
+  margin-top: 3rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.site-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
 .placeholder { text-align: center; padding: 2.5rem 1rem; }
 .placeholder .big { font-size: 3rem; }
