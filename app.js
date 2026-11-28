@@ -285,9 +285,18 @@ async function toggleChore(id) {
 
 async function deleteChore(id) {
   if (!confirm("Delete this chore?")) return;
+
+  const choreIndex = chores.findIndex(c => c.id === id);
+  const deletedChore = chores[choreIndex];
+  chores = chores.filter(c => c.id !== id);
+  render();
   const { error } = await db.from("chores").delete().eq("id", id);
-  if (error) { console.error(error); alert(error.message); return; }
-  loadChores();
+  if (error) { console.error(error); alert(error.message);
+    if (deletedChore) {
+      chores.splice(choreIndex, 0, deletedChore);
+      render();
+    }
+  }
 }
 
 async function createMember() {
