@@ -207,21 +207,14 @@ input, select {
 .chore-text { flex: 1; }
 .chore.done .chore-text { text-decoration: line-through; color: var(--muted); }
 
-/* ---------- assignee tooltip fixes for mobile ---------- */
+/* ---------- assignee & tooltip ---------- */
+.assignee { display: flex; align-items: center; gap: .3rem; font-size: .8rem; color: var(--muted); }
 .assignee-wrap {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: .3rem;
   cursor: help;
-  /* Ensures touch events register cleanly on mobile */
-  touch-action: manipulation;
-}
-
-/* Prevent avatar and label from capturing accidental click events */
-.assignee-wrap .avatar,
-.assignee-wrap span:not(.assignee-tooltip) {
-  pointer-events: none;
 }
 
 .assignee-tooltip {
@@ -241,12 +234,9 @@ input, select {
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   opacity: 0;
   transition: opacity 0.2s ease;
-  pointer-events: none; /* Tooltip won't block touches */
 }
 
-/* Show tooltip cleanly on mobile tap or desktop hover */
-.assignee-wrap:hover .assignee-tooltip,
-.assignee-wrap:active .assignee-tooltip {
+.assignee-wrap:hover .assignee-tooltip {
   visibility: visible;
   opacity: 1;
 }
