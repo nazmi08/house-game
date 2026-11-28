@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>House Quest</title>
   <style>
-    :root {
+    :root {la.
       --bg: #eaf4ff;
       --card: #ffffff;
       --ink: #1f2937;
@@ -106,6 +106,14 @@
     .complete-msg { background: #dcfce7; color: #166534; border-radius: 8px; padding: .4rem .75rem; font-weight: 700; margin: .75rem 0 0; }
     .empty { color: var(--muted); font-size: .9rem; margin: .5rem 0 0; }
 
+    /* ---------- family member ---------- */
+    .member { margin-top: 1rem; }
+    .member-head { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+    .member-head .name { font-weight: 700; flex: 1; }
+    .member-head .score { color: var(--muted); font-size: .9rem; }
+    .avatar.big { width: 44px; height: 44px; font-size: 1.1rem; }
+    .pct { text-align: right; font-size: .8rem; color: var(--muted); margin-top: .25rem; }
+
     /* ---------- admin + placeholders ---------- */
     .admin-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
     .admin-row input { flex: 1; min-width: 120px; }
@@ -147,6 +155,7 @@
         <button class="tab active" data-tab="chores" onclick="showTab('chores')">🧹 Chores</button>
         <button class="tab" data-tab="items" onclick="showTab('items')">🛒 Household items</button>
         <button class="tab" data-tab="cat" onclick="showTab('cat')">🐱 Cat care</button>
+        <button class="tab" data-tab="family" onclick="showTab('family')">👨‍👩‍👧 Family</button>
       </nav>
 
       <!-- ---------- TAB: CHORES ---------- -->
@@ -207,6 +216,11 @@
       </section>
     </div>
   </div>
+
+    <!-- --------- TAB: FAMILY MEMBERS --------- -->
+    <section id="tab-family" hidden>
+      <div id="family-list"></div>
+    </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -282,9 +296,72 @@
       document.getElementById("user-name").textContent = me ? me.display_name : "";
     }
 
+    function renderFamily() {
+      const box = document.getElementById("family-list");
+      box.innerHTML = "";
+    
+      // one stats object per member
+      const stats = profiles.map(p => {
+        const mine = chores.filter(c => c.assigned_to === p.id);
+        const done = mine.filter(c => c.done).length;
+        return { profile: p, total: mine.length, done: done,
+                 pct: mine.length ? Math.round((done / mine.length) * 100) : 0 };
+      });
+    
+      // most chores finished first
+      stats.sort((a, b) => b.done - a.done || b.pct - a.pct);
+    
+      stats.forEach((s, i) => {
+        const card = document.createElement("div");
+        card.className = "card member";
+    
+        const head = document.createElement("div");
+        head.className = "member-head";
+    
+        const avatar = makeAvatar(s.profile.display_name, s.profile.avatar_url);
+        avatar.classList.add("big");
+    
+        const name = document.createElement("span");
+        name.className = "name";
+        const medal = (i === 0 && s.done > 0) ? "🥇 " : "";
+        name.textContent = medal + s.profile.display_name + (s.profile.id === myId ? " (you)" : "");
+    
+        const score = document.createElement("span");
+        score.className = "score";
+        score.textContent = s.done + " / " + s.total + " done";
+    
+        head.appendChild(avatar);
+        head.appendChild(name);
+        head.appendChild(score);
+        card.appendChild(head);
+    
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        const fill = document.createElement("div");
+        fill.className = "fill";
+        fill.style.width = s.pct + "%";
+        bar.appendChild(fill);
+        card.appendChild(bar);
+    
+        const pct = document.createElement("div");
+        pct.className = "pct";
+        pct.textContent = s.total ? s.pct + "%" : "Nothing assigned yet";
+        card.appendChild(pct);
+    
+        box.appendChild(card);
+      });
+    
+      // chores nobody has claimed
+      const unclaimed = chores.filter(c => !c.assigned_to && !c.done).length;
+      const note = document.createElement("p");
+      note.className = "hint";
+      note.textContent = unclaimed + " unassigned chore" + (unclaimed === 1 ? "" : "s") + " waiting for someone.";
+      box.appendChild(note);
+    }
+
     // ================= TABS + FILTER =================
     function showTab(name) {
-      ["chores", "items", "cat"].forEach(t => {
+      ["chores", "items", "cat","family"].forEach(t => {
         document.getElementById("tab-" + t).hidden = (t !== name);
       });
       document.querySelectorAll(".tab").forEach(btn => {
@@ -399,7 +476,7 @@
       alert("Created " + username);
       document.getElementById("new-username").value = "";
       document.getElementById("new-password").value = "";
-      loadProfiles();
+      await loadProfiles(); render();
     }
 
     async function uploadAvatar(input) {
@@ -536,6 +613,8 @@
 
         roomsDiv.appendChild(card);
       });
+
+      renderFamily();
     }
 
     // ================= SIGN IN / OUT =================
