@@ -524,3 +524,24 @@ db.channel("chores-changes")
       { event: "*", schema: "public", table: "chores" },
       () => loadChores())
   .subscribe();
+
+// ================= MOBILE SCROLL HIDE / SHOW NAV =================
+let lastScrollTop = 0;
+
+window.addEventListener("scroll", () => {
+  // Only apply this behavior on mobile screens (768px width or less)
+  if (window.innerWidth > 768) return;
+
+  const sidebar = document.getElementById("sidebar");
+  const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+  if (currentScroll > lastScrollTop && currentScroll > 50) {
+    // Scrolling DOWN -> Hide the nav bar
+    sidebar.classList.add("nav-hidden");
+  } else {
+    // Scrolling UP -> Show the nav bar
+    sidebar.classList.remove("nav-hidden");
+  }
+  
+  lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+}, { passive: true });
