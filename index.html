@@ -29,6 +29,7 @@
     <form onsubmit="addChore(event)">
       <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
       <select id="room"></select>
+      <select id="assignee"></select>
       <button type="submit">Add</button>
     </form>
     <div id="rooms"></div>
@@ -49,6 +50,23 @@
     option.textContent = name;
     select.appendChild(option);
     });
+
+   let profiles = [];
+
+  async function loadProfiles() {
+    const { data, error } = await db.from("profiles").select("id, display_name");
+    if (error) { console.error(error); return; }
+    profiles = data;
+  
+    const sel = document.getElementById("assignee");
+    sel.innerHTML = '<option value="">Anyone</option>';
+    profiles.forEach(p => {
+      const o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.display_name;
+      sel.appendChild(o);
+    });
+  }
    
     async function loadChores() {
       const { data, error } = await db.from("chores").select("*").order("id");
@@ -75,8 +93,12 @@
         return; // stops here so it never reaches the database insert
       }
     
-      const { error } = await db.from("chores").insert({ text: choreText, room: room.value });
-      if (error) { console.error(error); return; }
+      const assignee = document.getElementById("assignee");
+      const { error } = await db.from("chores").insert({
+        text: input.value,
+        room: room.value,
+        assigned_to: assignee.value || null
+      });
     
       input.value = "";
       loadChores();
@@ -161,7 +183,7 @@
       db.auth.onAuthStateChange((event, session) => {
       document.getElementById("auth").hidden = !!session;
       document.getElementById("app").hidden = !session;
-    if (session) loadChores();
+    if (session) loadProfiles().then(loadChores);
     });
    
     db.channel("chores-changes")
