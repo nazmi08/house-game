@@ -17,21 +17,21 @@
 </head>
 <body>
   <h1>House Quest Trial_v1</h1>
-  <form onsubmit="addChore(event)">
-    <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
-    <select id="room">
-    </select>
-    <button type="submit">Add</button>
-  </form>
-  <div id="rooms"></div>
+
   <div id="auth">
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
-  <button onclick="signIn()">Sign in</button>
+    <button onclick="signIn()">Sign in</button>
   </div>
+
   <div id="app" hidden>
     <button onclick="signOut()">Sign out</button>
-    <!-- your existing form + rooms div go here -->
+    <form onsubmit="addChore(event)">
+      <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
+      <select id="room"></select>
+      <button type="submit">Add</button>
+    </form>
+    <div id="rooms"></div>
   </div>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  <script>
@@ -71,11 +71,11 @@
       );
 
       if (isDuplicate) {
-        alert(`"&{choreText}" is already in ${room.value}!`)
+        alert(`"${choreText}" is already in ${room.value}!`)
         return; // stops here so it never reaches the database insert
       }
     
-      const { error } = await db.from("chores").insert({ text: input.value, room: room.value });
+      const { error } = await db.from("chores").insert({ text: choreText, room: room.value });
       if (error) { console.error(error); return; }
     
       input.value = "";
