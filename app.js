@@ -195,6 +195,11 @@ function toggleSidebar() {
   sidebar.classList.toggle("open");
 }
 
+// Automatically collapse the sidebar when the mouse leaves it
+document.getElementById("sidebar").addEventListener("mouseleave", () => {
+  document.getElementById("sidebar").classList.remove("open");
+});
+
 // ================= LOAD DATA =================
 async function loadMyRole(userId) {
   const { data, error } = await db
