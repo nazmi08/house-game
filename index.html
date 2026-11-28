@@ -22,6 +22,7 @@
     <input id="email" placeholder="Username or email">
     <input id="password" type="password" placeholder="Password">
     <button onclick="signIn()">Sign in</button>
+    <p>No account yet? Ask the house admin to create one for you.</p>
   </div>
 
   <div id="app" hidden>
@@ -32,6 +33,12 @@
       <select id="assignee"></select>
       <button type="submit">Add</button>
     </form>
+    <div id="admin-panel" hidden>
+      <h3>Add family member</h3>
+      <input id="new-username" placeholder="Username">
+      <input id="new-password" type="password" placeholder="Password">
+      <button onclick="createMember()">Create</button>
+    </div>
     <div id="rooms"></div>
   </div>
 
@@ -62,6 +69,7 @@
         .single();
       if (error) { console.error(error); return; }
       myRole = data.role;
+      console.log("my role is", myRole);
     }
 
     async function loadProfiles() {
@@ -78,6 +86,21 @@
         sel.appendChild(o);
       });
     }
+
+    async function createMember() {
+    const username = document.getElementById("new-username").value;
+    const password = document.getElementById("new-password").value;
+  
+    const { error } = await db.functions.invoke("create-member", {
+      body: { username, password }
+    });
+    if (error) { alert(error.message); return; }
+  
+    alert("Created " + username);
+    document.getElementById("new-username").value = "";
+    document.getElementById("new-password").value = "";
+    loadProfiles();
+  }
    
     async function loadChores() {
       const { data, error } = await db.from("chores").select("*").order("id");
@@ -106,7 +129,7 @@
     
       const assignee = document.getElementById("assignee");
       const { error } = await db.from("chores").insert({
-        text: input.value,
+        text: choreText,
         room: room.value,
         assigned_to: assignee.value || null
       });
