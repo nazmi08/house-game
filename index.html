@@ -105,7 +105,15 @@
     const { error } = await db.functions.invoke("create-member", {
       body: { username, password }
     });
-    if (error) { alert(error.message); return; }
+    if (error) {
+      let msg = error.message;
+      try {
+        const body = await error.context.json();
+        msg = body.error || body.message || msg;
+      } catch (e) {}
+      alert(msg);
+      return;
+    }
   
     alert("Created " + username);
     document.getElementById("new-username").value = "";
