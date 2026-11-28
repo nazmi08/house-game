@@ -280,35 +280,68 @@ input, select {
   text-decoration: underline;
 }
 
-/* ---------- responsive mobile layout ---------- */
+/* ---------- responsive mobile layout with scroll hide/show ---------- */
 @media (max-width: 768px) {
   body {
     flex-direction: column;
   }
+  
+  /* Dock sidebar to the bottom on mobile */
   .sidebar {
-    position: relative;
+    position: fixed;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
-    height: auto;
+    height: 60px;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    padding: 0.75rem 1rem;
-    box-shadow: none;
+    padding: 0.5rem;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
     border-right: none;
-    border-bottom: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
   }
-  .sidebar:hover, .sidebar.open {
-    width: 100%;
+
+  /* Slide down out of view when scrolling down */
+  .sidebar.nav-hidden {
+    transform: translateY(100%);
   }
+
+  /* Hide brand text on mobile bottom bar, show only icons/tabs */
+  .sidebar-brand {
+    display: none;
+  }
+
   .tabs {
     flex-direction: row;
-    overflow-x: auto;
+    justify-content: space-around;
+    width: 100%;
+    gap: 0;
   }
-  .sidebar .tab-text, .sidebar .sidebar-brand span:nth-child(2) {
-    opacity: 1;
+
+  .tab {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px;
+    font-size: 0.7rem;
+    text-align: center;
   }
+
+  .sidebar .tab-text {
+    opacity: 1 !important;
+    font-size: 0.65rem;
+  }
+
+  /* Adjust main content padding so bottom nav doesn't cover content */
   .main-content {
     margin-left: 0;
-    padding: 1rem;
+    padding: 1rem 1rem 5rem 1rem; /* Extra bottom padding */
+    max-width: 100%;
   }
 }
