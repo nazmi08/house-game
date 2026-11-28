@@ -5,21 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>House Quest</title>
   <style>
-    body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; background-color: lightblue;}
-    li { display: flex; justify-content: space-between; align-items: center; margin: .5rem 0; cursor: pointer;}
+    body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; background-color: lightblue; }
+    li { display: flex; justify-content: space-between; align-items: center; margin: 0.5rem 0; cursor: pointer; }
     .done { text-decoration: line-through; color: gray; }
-    .room { border: 1px solid #ccc; border-radius: 8px; padding: 0.5rem 1rem; margin: 1rem 0; }
-    .room.complete { border: 2px solid #22c55e; background-color: #f0fdf4;}
-    .complete-msg { color: #166534; background-color: #dcfce7; padding: .4rem .75rem; border-radius: 6px; font-weight: bold; margin-top: .75rem; margin-bottom: 0;}
-    .delete-btn { background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; padding: 2px 6px; font-size: .75rem; cursor: pointer;}
-    .delete-btn:hover{ background: #fecaca;}
+    .room { border: 1px solid #ccc; border-radius: 8px; padding: 0.5rem 1rem; margin: 1rem 0; background: white; }
+    .room.complete { border: 2px solid #22c55e; background-color: #f0fdf4; }
+    .complete-msg { color: #166534; background-color: #dcfce7; padding: 0.4rem 0.75rem; border-radius: 6px; font-weight: bold; margin-top: 0.75rem; margin-bottom: 0; }
+    .delete-btn { background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; cursor: pointer; }
+    .delete-btn:hover { background: #fecaca; }
   </style>
 </head>
 <body>
   <h1>House Quest Trial_v1</h1>
 
   <div id="auth">
-    <input id="email" type="email" placeholder="Email">
+    <input id="email" placeholder="Username or email">
     <input id="password" type="password" placeholder="Password">
     <button onclick="signIn()">Sign in</button>
   </div>
@@ -34,39 +34,50 @@
     </form>
     <div id="rooms"></div>
   </div>
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
     const roomsDiv = document.getElementById("rooms");
     const rooms = ["Living Room", "Kitchen", "Bathroom", "Bedroom", "Balcony"];
     
     const { createClient } = supabase;
     const db = createClient("https://bglkwkudbbouockxbhcq.supabase.co", "sb_publishable_G-xjJM3MNpr4YTVsQrVwfA_sPOj_tV3");
     let chores = [];
+    let myRole = "member";
+    let profiles = [];
 
-    //fill the dropdown from the rooms array
+    // Fill the room dropdown
     const select = document.getElementById("room");
     rooms.forEach(name => {
-    const option = document.createElement("option");
-    option.textContent = name;
-    select.appendChild(option);
+      const option = document.createElement("option");
+      option.textContent = name;
+      select.appendChild(option);
     });
 
-   let profiles = [];
+    async function loadMyRole(userId) {
+      const { data, error } = await db
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+      if (error) { console.error(error); return; }
+      myRole = data.role;
+    }
 
-  async function loadProfiles() {
-    const { data, error } = await db.from("profiles").select("id, display_name");
-    if (error) { console.error(error); return; }
-    profiles = data;
-  
-    const sel = document.getElementById("assignee");
-    sel.innerHTML = '<option value="">Anyone</option>';
-    profiles.forEach(p => {
-      const o = document.createElement("option");
-      o.value = p.id;
-      o.textContent = p.display_name;
-      sel.appendChild(o);
-    });
-  }
+    async function loadProfiles() {
+      const { data, error } = await db.from("profiles").select("id, display_name");
+      if (error) { console.error(error); return; }
+      profiles = data;
+    
+      const sel = document.getElementById("assignee");
+      sel.innerHTML = '<option value="">Anyone</option>';
+      profiles.forEach(p => {
+        const o = document.createElement("option");
+        o.value = p.id;
+        o.textContent = p.display_name;
+        sel.appendChild(o);
+      });
+    }
    
     async function loadChores() {
       const { data, error } = await db.from("chores").select("*").order("id");
@@ -81,7 +92,7 @@
       const room = document.getElementById("room");
       const choreText = input.value.trim();
 
-      if ( choreText === "") return;
+      if (choreText === "") return;
 
       const isDuplicate = chores.some(c =>
         c.room === room.value &&
@@ -89,8 +100,8 @@
       );
 
       if (isDuplicate) {
-        alert(`"${choreText}" is already in ${room.value}!`)
-        return; // stops here so it never reaches the database insert
+        alert(`"${choreText}" is already in ${room.value}!`);
+        return;
       }
     
       const assignee = document.getElementById("assignee");
@@ -99,98 +110,113 @@
         room: room.value,
         assigned_to: assignee.value || null
       });
+      if (error) { console.error(error); return; }
     
       input.value = "";
       loadChores();
     }
 
     async function toggleChore(id) {
-      const chore = chores.find(c => c.id === id);   // look up the chore in the local array
+      const chore = chores.find(c => c.id === id);
       const { error } = await db
         .from("chores")
-        .update({ done: !chore.done })                        // the opposite of the current value
+        .update({ done: !chore.done })
         .eq("id", id);
       if (error) { console.error(error); return; }
       loadChores();
     }
-   //function to remove a chore by its array index
-    async function deleteChore(id){
+
+    async function deleteChore(id) {
       const { error } = await db
         .from("chores")
         .delete()
-        .eq("id",id);
-      if (error) { console.error(error); return;}
-        loadChores();
+        .eq("id", id);
+      if (error) { console.error(error); return; }
+      loadChores();
     }
    
     function render() {
-        roomsDiv.innerHTML= "";
-        rooms.forEach(roomName => {
-            const roomChores = chores.filter(c => c.room === roomName);
-            const doneCount = roomChores.filter(c => c.done).length;
-            const isComplete = roomChores.length > 0 && doneCount === roomChores.length;
+      roomsDiv.innerHTML = "";
+      rooms.forEach(roomName => {
+        const roomChores = chores.filter(c => c.room === roomName);
+        const doneCount = roomChores.filter(c => c.done).length;
+        const isComplete = roomChores.length > 0 && doneCount === roomChores.length;
 
-            const card = document.createElement("div");
-            card.className = "room" + (isComplete ? " complete" : "");
-            card.innerHTML = "<h2>" + roomName + " (" + doneCount + "/" + roomChores.length +")</h2>";
+        const card = document.createElement("div");
+        card.className = "room" + (isComplete ? " complete" : "");
+        card.innerHTML = "<h2>" + roomName + " (" + doneCount + "/" + roomChores.length + ")</h2>";
 
-            const ul = document.createElement("ul");
-            chores.forEach((chore) => {
-                if (chore.room !== roomName) return;
-              
-                const li = document.createElement("li");
-                if (chore.done) li.classList.add("done");
-                li.onclick = () => toggleChore(chore.id);
-              
-                const textSpan = document.createElement("span");
-                textSpan.textContent = chore.text;
-              
-                const delBtn = document.createElement("button");
-                delBtn.textContent = "✕";
-                delBtn.className = "delete-btn"
-                delBtn.onclick = (event) => {
-                    event.stopPropagation();
-                    deleteChore(chore.id);
-                }
-                li.appendChild(textSpan);
-                li.appendChild(delBtn);
-                ul.appendChild(li);
-            });
-            card.appendChild(ul);
-            //show message when all chores in this room are done
-            if (isComplete) {
-                const msg = document.createElement("p");
-                msg.className = "complete-msg";
-                msg.textContent = "All " + roomName + " chores done!";
-                card.appendChild(msg);
-            }
-            roomsDiv.appendChild(card);
-            });
+        const ul = document.createElement("ul");
+        chores.forEach((chore) => {
+          if (chore.room !== roomName) return;
+        
+          const li = document.createElement("li");
+          if (chore.done) li.classList.add("done");
+          li.onclick = () => toggleChore(chore.id);
+        
+          const textSpan = document.createElement("span");
+          textSpan.textContent = chore.text;
+          li.appendChild(textSpan);
+
+          // Render delete button only if user is admin
+          if (myRole === "admin") {
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "✕";
+            delBtn.className = "delete-btn";
+            delBtn.onclick = (event) => {
+              event.stopPropagation();
+              deleteChore(chore.id);
+            };
+            li.appendChild(delBtn);
+          }
+
+          ul.appendChild(li);
+        });
+
+        card.appendChild(ul);
+
+        if (isComplete) {
+          const msg = document.createElement("p");
+          msg.className = "complete-msg";
+          msg.textContent = "All " + roomName + " chores done!";
+          card.appendChild(msg);
+        }
+
+        roomsDiv.appendChild(card);
+      });
     }
 
     async function signIn() {
+      let id = document.getElementById("email").value.trim().toLowerCase();
+      if (!id.includes("@")) id = id + "@housequest.example";
+    
       const { error } = await db.auth.signInWithPassword({
-          email: document.getElementById("email").value,
-          password: document.getElementById("password").value
+        email: id,
+        password: document.getElementById("password").value
       });
       if (error) alert(error.message);
-      }
+    }
   
     async function signOut() {
       await db.auth.signOut();
-      }
+    }
   
-      db.auth.onAuthStateChange((event, session) => {
+    db.auth.onAuthStateChange((event, session) => {
       document.getElementById("auth").hidden = !!session;
       document.getElementById("app").hidden = !session;
-    if (session) loadProfiles().then(loadChores);
+      if (session) {
+        loadProfiles();
+        loadMyRole(session.user.id).then(loadChores);
+      } else {
+        myRole = "member";
+      }
     });
    
     db.channel("chores-changes")
-    .on("postgres_changes",
-        { event: "*", schema: "public", table: "chores" },
-        () => loadChores())
-    .subscribe();
+      .on("postgres_changes",
+          { event: "*", schema: "public", table: "chores" },
+          () => loadChores())
+      .subscribe();
   </script>
 </body>
 </html>
