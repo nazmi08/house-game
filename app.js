@@ -374,7 +374,7 @@ function render() {
     visible.forEach(chore => {
       const li = document.createElement("li");
       li.className = "chore" + (chore.done ? " done" : "");
-      li.onclick = () => toggleChore(chore.id);
+      //li.onclick = () => toggleChore(chore.id);
 
       const check = document.createElement("span");
       check.className = "check";
