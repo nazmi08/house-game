@@ -69,6 +69,7 @@
         .single();
       if (error) { console.error(error); return; }
       myRole = data.role;
+      applyRole();
       console.log("my role is", myRole);
     }
 
@@ -85,6 +86,10 @@
         o.textContent = p.display_name;
         sel.appendChild(o);
       });
+    }
+
+    function applyRole() {
+      document.getElementById("admin-panel").hidden = myRole !== "admin";
     }
 
     async function createMember() {
@@ -232,6 +237,7 @@
         loadMyRole(session.user.id).then(loadChores);
       } else {
         myRole = "member";
+        applyRole();
       }
     });
    
