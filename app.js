@@ -172,8 +172,9 @@ function renderFamily() {
 }
 
 // ================= TABS + FILTER =================
-function showTab(name) {
-  ["chores", "items", "cat", "family"].forEach(t => {
+function showTab(name, event) {
+  if (event) event.stopPropagation(); // Prevents triggering sidebar click toggle
+  ["chores", "about", "items", "cat", "family"].forEach(t => {
     document.getElementById("tab-" + t).hidden = (t !== name);
   });
   document.querySelectorAll(".tab").forEach(btn => {
@@ -186,6 +187,12 @@ function setFilter(value) {
   document.getElementById("filter-all").classList.toggle("active", value === "all");
   document.getElementById("filter-mine").classList.toggle("active", value === "mine");
   render();
+}
+
+// Toggle sidebar open/closed on click
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("open");
 }
 
 // ================= LOAD DATA =================
