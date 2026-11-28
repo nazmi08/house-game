@@ -269,10 +269,23 @@ async function addChore(event) {
 async function toggleChore(id) {
   const chore = chores.find(c => c.id === id);
   if (!chore) return;
-  const { error } = await db.from("chores").update({ done: !chore.done }).eq("id", id);
-  if (error) { console.error(error); alert(error.message); return; }
-  loadChores();
+
+  // 1. Instantly flip the state locally and re-render so it snaps ASAP
+  chore.done = !chore.done;
+  render();
+
+  // 2. Send the update to Supabase in the background
+  const { error } = await db.from("chores").update({ done: chore.done }).eq("id", id);
+  
+  if (error) {
+    console.error(error);
+    alert(error.message);
+    // Revert local change if the database request failed
+    chore.done = !chore.done;
+    render();
+  }
 }
+
 
 async function deleteChore(id) {
   if (!confirm("Delete this chore?")) return;
