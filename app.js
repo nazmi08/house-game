@@ -270,22 +270,18 @@ async function toggleChore(id) {
   const chore = chores.find(c => c.id === id);
   if (!chore) return;
 
-  // 1. Instantly flip the state locally and re-render so it snaps ASAP
-  chore.done = !chore.done;
-  render();
+  const newValue = !chore.done;
+  chore.done = newValue;   // 1. change the data on screen now
+  render();                // 2. redraw instantly
 
-  // 2. Send the update to Supabase in the background
-  const { error } = await db.from("chores").update({ done: chore.done }).eq("id", id);
-  
-  if (error) {
-    console.error(error);
-    alert(error.message);
-    // Revert local change if the database request failed
-    chore.done = !chore.done;
+  const { error } = await db.from("chores").update({ done: newValue }).eq("id", id);  // 3. tell the database
+
+  if (error) {             // 4. if it failed, undo and warn
+    chore.done = !newValue;
     render();
+    alert(error.message);
   }
 }
-
 
 async function deleteChore(id) {
   if (!confirm("Delete this chore?")) return;
@@ -532,10 +528,25 @@ db.auth.onAuthStateChange((event, session) => {
 });
 
 // ================= LIVE UPDATES =================
+// db.channel("chores-changes")
+//   .on("postgres_changes",
+//       { event: "*", schema: "public", table: "chores" },
+//       () => loadChores())
+//   .subscribe();
 db.channel("chores-changes")
   .on("postgres_changes",
       { event: "*", schema: "public", table: "chores" },
-      () => loadChores())
+      (payload) => {
+        if (payload.eventType === "INSERT") {
+          if (!chores.some(c => c.id === payload.new.id)) chores.push(payload.new);
+        } else if (payload.eventType === "UPDATE") {
+          const i = chores.findIndex(c => c.id === payload.new.id);
+          if (i >= 0) chores[i] = payload.new;
+        } else if (payload.eventType === "DELETE") {
+          chores = chores.filter(c => c.id !== payload.old.id);
+        }
+        render();
+      })
   .subscribe();
 
 // ================= MOBILE SCROLL HIDE / SHOW NAV =================
