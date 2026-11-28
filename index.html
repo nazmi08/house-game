@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <h1>House Quest Trial_v1</h1>
+  <h1>House Quest Trial_v2</h1>
 
   <div id="auth">
     <input id="email" placeholder="Username or email">
@@ -27,6 +27,7 @@
 
   <div id="app" hidden>
     <button onclick="signOut()">Sign out</button>
+    <p id="status"></p>
     <form onsubmit="addChore(event)">
       <input id="chore" placeholder="New chore, e.g. wipe kitchen counter">
       <select id="room"></select>
@@ -61,16 +62,21 @@
       select.appendChild(option);
     });
 
-    async function loadMyRole(userId) {
+    async function loadMyRole(userId, email) {
+      const status = document.getElementById("status");
       const { data, error } = await db
         .from("profiles")
         .select("role")
         .eq("id", userId)
         .single();
-      if (error) { console.error(error); return; }
+      if (error) {
+        status.textContent = email + " - role error: " + error.message;
+        console.error(error);
+        return;
+      }
       myRole = data.role;
+      status.textContent = email + " - role: " + myRole;
       applyRole();
-      console.log("my role is", myRole);
     }
 
     async function loadProfiles() {
@@ -234,7 +240,7 @@
       document.getElementById("app").hidden = !session;
       if (session) {
         loadProfiles();
-        loadMyRole(session.user.id).then(loadChores);
+        loadMyRole(session.user.id, session.user.email).then(loadChores);
       } else {
         myRole = "member";
         applyRole();
