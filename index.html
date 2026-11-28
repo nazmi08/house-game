@@ -255,7 +255,14 @@
     }
 
     // a colored circle with the person's first letter
-    function makeAvatar(name) {
+    function makeAvatar(name, url) {
+      if (url) {
+        const img = document.createElement("img");
+        img.className = "avatar";
+        img.src = url;
+        img.alt = name;
+        return img;
+      }
       const el = document.createElement("span");
       el.className = "avatar";
       el.textContent = (name || "?").charAt(0).toUpperCase();
@@ -263,6 +270,14 @@
       for (const ch of (name || "?")) hue = (hue * 31 + ch.charCodeAt(0)) % 360;
       el.style.background = "hsl(" + hue + " 65% 42%)";
       return el;
+    }
+
+    function renderHeader() {
+      const me = profiles.find(p => p.id === myId);
+      const slot = document.getElementById("user-avatar");
+      slot.innerHTML = "";
+      slot.appendChild(makeAvatar(me ? me.display_name : "?", me ? me.avatar_url : null));
+      document.getElementById("user-name").textContent = me ? me.display_name : "";
     }
 
     // ================= TABS + FILTER =================
@@ -297,7 +312,7 @@
     }
 
     async function loadProfiles() {
-      const { data, error } = await db.from("profiles").select("id, display_name");
+      const { data, error } = await db.from("profiles").select("id, display_name, avatar_url");
       if (error) { console.error(error); showStatus("Could not load members: " + error.message); return; }
       profiles = data;
 
@@ -385,6 +400,30 @@
       loadProfiles();
     }
 
+    async function uploadAvatar(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) { alert("Please choose an image."); return; }
+      if (file.size > 2 * 1024 * 1024) { alert("Image must be under 2 MB."); return; }
+    
+      const path = myId + "/avatar";
+      const { error: uploadError } = await db.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) { alert(uploadError.message); return; }
+    
+      const { data } = db.storage.from("avatars").getPublicUrl(path);
+      const url = data.publicUrl + "?v=" + Date.now();
+    
+      const { error } = await db.from("profiles").update({ avatar_url: url }).eq("id", myId);
+      if (error) { alert(error.message); return; }
+    
+      input.value = "";
+      await loadProfiles();
+      renderHeader();
+      render();
+    }
+
     // ================= DRAW THE PAGE =================
     function render() {
       roomsDiv.innerHTML = "";
@@ -449,7 +488,8 @@
           who.className = "assignee";
           const name = profileName(chore.assigned_to);
           if (name) {
-            who.appendChild(makeAvatar(name));
+            const person = profiles.find(p => p.id === chore.assigned_to);
+            who.appendChild(makeAvatar(name, person ? person.avatar_url : null));
             const label = document.createElement("span");
             label.textContent = name;
             who.appendChild(label);
@@ -516,17 +556,15 @@
       document.getElementById("auth").hidden = !!session;
       document.getElementById("app").hidden = !session;
 
-      if (session) {
-        myId = session.user.id;
-        const name = session.user.email.split("@")[0];
-        const slot = document.getElementById("user-avatar");
-        slot.innerHTML = "";
-        slot.appendChild(makeAvatar(name));
-        document.getElementById("user-name").textContent = name;
-        showStatus("");
-
-        // load members and role first, then draw the chores
-        Promise.all([loadProfiles(), loadMyRole(session.user.id)]).then(loadChores);
+    if (session) {
+      myId = session.user.id;
+      showStatus("");
+  
+      // load members and role first, then draw the header and chores
+      Promise.all([loadProfiles(), loadMyRole(session.user.id)]).then(() => {
+        renderHeader();
+        loadChores();
+      });
       } else {
         myId = null;
         myRole = "member";
