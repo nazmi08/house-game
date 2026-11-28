@@ -9,7 +9,7 @@
 <body>
 
   <!-- ================= LOGIN ================= -->
-  <div id="auth" class="auth-wrap">
+  <div id="auth" class="auth-wrap" style="width: 100%;">
     <div class="card">
       <h1>🏠 House Quest</h1>
       <input id="email" placeholder="Username or email" autocomplete="username">
@@ -19,21 +19,48 @@
     </div>
   </div>
 
-  <!-- ================= APP ================= -->
-  <div id="app" hidden>
-    <header class="topbar">
-      <div class="brand">🏠 House Quest</div>
-      <div class="user">
-        <span id="user-avatar"></span>
-        <span id="user-name"></span>
-        <span id="role-badge" class="badge"></span>
-        <button class="ghost" onclick="document.getElementById('avatar-file').click()" title="Change photo">📷</button>
-        <input id="avatar-file" type="file" accept="image/*" hidden onchange="uploadAvatar(this)">
-        <button class="ghost" onclick="signOut()">Sign out</button>
+  <!-- ================= APP WITH SIDEBAR ================= -->
+  <div id="app" hidden style="display: contents;">
+    
+    <!-- Collapsible Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar" onclick="toggleSidebar()">
+      <div class="sidebar-brand">
+        <span>🏠</span>
+        <span>House Quest</span>
       </div>
-    </header>
+      <div class="tabs">
+        <button class="tab active" data-tab="chores" onclick="showTab('chores', event)">
+          <span>🧹</span> <span class="tab-text">Chores</span>
+        </button>
+        <button class="tab" data-tab="about" onclick="showTab('about', event)">
+          <span>ℹ️</span> <span class="tab-text">About</span>
+        </button>
+        <button class="tab" data-tab="items" onclick="showTab('items', event)">
+          <span>🛒</span> <span class="tab-text">Household items</span>
+        </button>
+        <button class="tab" data-tab="cat" onclick="showTab('cat', event)">
+          <span>🐱</span> <span class="tab-text">Cat care</span>
+        </button>
+        <button class="tab" data-tab="family" onclick="showTab('family', event)">
+          <span>👨‍👩‍👧</span> <span class="tab-text">Family</span>
+        </button>
+      </div>
+    </nav>
 
-    <div class="wrap">
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar" style="border-radius: 12px; margin-bottom: 1.5rem;">
+        <div class="brand">Welcome back!</div>
+        <div class="user">
+          <span id="user-avatar"></span>
+          <span id="user-name"></span>
+          <span id="role-badge" class="badge"></span>
+          <button class="ghost" onclick="document.getElementById('avatar-file').click()" title="Change photo">📷</button>
+          <input id="avatar-file" type="file" accept="image/*" hidden onchange="uploadAvatar(this)">
+          <button class="ghost" onclick="signOut()">Sign out</button>
+        </div>
+      </header>
+
       <p id="status" class="status" hidden></p>
 
       <!-- Live Online Presence Bar -->
@@ -41,14 +68,6 @@
         <span class="online-label">Online now:</span>
         <div id="online-users" style="display:flex; gap:.4rem; flex-wrap:wrap;"></div>
       </div>
-
-      <nav class="tabs">
-        <button class="tab active" data-tab="chores" onclick="showTab('chores')">🧹 Chores</button>
-        <button class="tab" data-tab="about" onclick="showTab('about')">ℹ️ About</button>
-        <button class="tab" data-tab="items" onclick="showTab('items')">🛒 Household items</button>
-        <button class="tab" data-tab="cat" onclick="showTab('cat')">🐱 Cat care</button>
-        <button class="tab" data-tab="family" onclick="showTab('family')">👨‍👩‍👧 Family</button>
-      </nav>
 
       <!-- ---------- TAB: CHORES ---------- -->
       <section id="tab-chores">
@@ -89,22 +108,22 @@
         <div id="rooms"></div>
       </section>
 
-        <!-- ---------- TAB: ABOUT ---------- -->
-              <section id="tab-about">
-                <div class="card">
-                  <h2>About House Quest</h2>
-                  <p><strong>House Quest</strong> is a collaborative web application designed to help family members organize, assign, and track household chores effortlessly in real time.</p>
-                  <h3>What it does:</h3>
-                  <ul>
-                    <li><strong>Chore Management:</strong> Assign tasks to specific rooms and family members.</li>
-                    <li><strong>Live Sync:</strong> Instantly updates when anyone checks off a task or adds a new chore.</li>
-                    <li><strong>Accountability:</strong> Hover over any assigned chore to see who assigned it.</li>
-                    <li><strong>Family Scoreboard:</strong> Track completion rates and see who is leading the household contributions.</li>
-                  </ul>
-                </div>
-              </section>
+      <!-- ---------- TAB: ABOUT ---------- -->
+      <section id="tab-about" hidden>
+        <div class="card">
+          <h2>About House Quest</h2>
+          <p><strong>House Quest</strong> is a collaborative web application designed to help family members organize, assign, and track household chores effortlessly in real time.</p>
+          <h3>What it does:</h3>
+          <ul>
+            <li><strong>Chore Management:</strong> Assign tasks to specific rooms and family members.</li>
+            <li><strong>Live Sync:</strong> Instantly updates when anyone checks off a task or adds a new chore.</li>
+            <li><strong>Accountability:</strong> Hover over any assigned chore to see who assigned it.</li>
+            <li><strong>Family Scoreboard:</strong> Track completion rates and see who is leading the household contributions.</li>
+          </ul>
+        </div>
+      </section>
 
-      <!-- ---------- TAB: HOUSEHOLD ITEMS (coming soon) ---------- -->
+      <!-- ---------- TAB: HOUSEHOLD ITEMS ---------- -->
       <section id="tab-items" hidden>
         <div class="card placeholder">
           <div class="big">🛒</div>
@@ -113,7 +132,7 @@
         </div>
       </section>
 
-      <!-- ---------- TAB: CAT CARE (coming soon) ---------- -->
+      <!-- ---------- TAB: CAT CARE ---------- -->
       <section id="tab-cat" hidden>
         <div class="card placeholder">
           <div class="big">🐱</div>
@@ -126,17 +145,14 @@
       <section id="tab-family" hidden>
         <div id="family-list"></div>
       </section>
-    </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>House Quest &bull; Created by You &bull; <a href="https://github.com/YOUR-USERNAME/house-quest" target="_blank">GitHub Repository</a></p>
+      </footer>
+    </main>
   </div>
 
-      <!-- Footer with Credit & GitHub Link -->
-          <footer class="site-footer">
-            <p>House Quest &bull; Created by You &bull; <a href="https://github.com/nazmi08/house-game" target="_blank">GitHub Repository</a></p>
-          </footer>
-        </div>
-      </div>
-
-  <!-- Supabase SDK first, then your custom app logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
