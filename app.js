@@ -245,7 +245,8 @@ async function addChore(event) {
   const { error } = await db.from("chores").insert({
     text: choreText,
     room: room.value,
-    assigned_to: assignee.value || null
+    assigned_to: assignee.value || null,
+    assigned_by: myId
   });
   if (error) { console.error(error); alert(error.message); return; }
 
@@ -372,17 +373,26 @@ function render() {
       text.textContent = chore.text;
 
       const who = document.createElement("span");
-      who.className = "assignee";
-      const name = profileName(chore.assigned_to);
-      if (name) {
+      who.className = "assignee assignee-wrap";
+  
+      const assignedName = profileName(chore.assigned_to);
+      const assignedByName = profileName(chore.assigned_by);
+  
+      if (assignedName) {
         const person = profiles.find(p => p.id === chore.assigned_to);
-        who.appendChild(makeAvatar(name, person ? person.avatar_url : null));
+        who.appendChild(makeAvatar(assignedName, person ? person.avatar_url : null));
         const label = document.createElement("span");
-        label.textContent = name;
+        label.textContent = assignedName;
         who.appendChild(label);
       } else {
         who.textContent = "Anyone";
       }
+
+    // Creates the hover tooltip element
+    const tooltip = document.createElement("span");
+    tooltip.className = "assignee-tooltip";
+    tooltip.textContent = assignedByName ? "Assigned by " + assignedByName : "Self-assigned / Unassigned";
+    who.appendChild(tooltip);
 
       li.appendChild(check);
       li.appendChild(text);
