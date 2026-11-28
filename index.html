@@ -44,6 +44,7 @@
 
       <nav class="tabs">
         <button class="tab active" data-tab="chores" onclick="showTab('chores')">🧹 Chores</button>
+        <button class="tab" data-tab="about" onclick="showTab('about')">ℹ️ About</button>
         <button class="tab" data-tab="items" onclick="showTab('items')">🛒 Household items</button>
         <button class="tab" data-tab="cat" onclick="showTab('cat')">🐱 Cat care</button>
         <button class="tab" data-tab="family" onclick="showTab('family')">👨‍👩‍👧 Family</button>
@@ -88,6 +89,21 @@
         <div id="rooms"></div>
       </section>
 
+      <!-- ---------- TAB: ABOUT ---------- -->
+      <section id="tab-about" hidden>
+        <div class="card">
+          <h2>About House Quest</h2>
+          <p><strong>House Quest</strong> is a collaborative web application designed to help family members organize, assign, and track household chores effortlessly in real time.</p>
+          <h3>What it does:</h3>
+          <ul>
+            <li><strong>Chore Management:</strong> Assign tasks to specific rooms and family members.</li>
+            <li><strong>Live Sync:</strong> Instantly updates when anyone checks off a task or adds a new chore.</li>
+            <li><strong>Accountability:</strong> Hover over any assigned chore to see who assigned it.</li>
+            <li><strong>Family Scoreboard:</strong> Track completion rates and see who is leading the household contributions.</li>
+          </ul>
+        </div>
+      </section>
+
       <!-- ---------- TAB: HOUSEHOLD ITEMS (coming soon) ---------- -->
       <section id="tab-items" hidden>
         <div class="card placeholder">
@@ -112,6 +128,13 @@
       </section>
     </div>
   </div>
+
+      <!-- Footer with Credit & GitHub Link -->
+          <footer class="site-footer">
+            <p>House Quest &bull; Created by You &bull; <a href="https://github.com/nazmi08/house-game" target="_blank">GitHub Repository</a></p>
+          </footer>
+        </div>
+      </div>
 
   <!-- Supabase SDK first, then your custom app logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
